@@ -24,7 +24,7 @@ const checkEligibilityRoute = require("./app/routes/check-loan-eligibility.route
 const paymentRoute = require("./app/routes/payment.route");
 const statementRoute = require("./app/routes/statement.routes");
 
-db.sequelize.sync({ force: false })
+db.sequelize.sync({ force: true })
     .then(() => {
         console.log("Synced db.");
     })

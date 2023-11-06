@@ -13,29 +13,59 @@ const addCustomer = async (req, res) => {
     }
 
     // add customer
-    const customer = {
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        age: req.body.age,
-        phone_number: req.body.phone_number,
-        monthly_salary: req.body.monthly_salary,
-        approved_limit: 36 * req.body.monthly_salary,
-        current_debt: req.body.current_debt
-    }
+
     try {
         // save the customer in the database
-        const response = await Customer.create(customer)
-        if (response) {
-            const addedCustomer = await Customer.findByPk(response.customer_id, {
-                attributes: {
-                    exclude: ['current_debt', 'createdAt', 'updatedAt'],
-                }
-            })
+        const customerExist = await Customer.findAll({});
+        if (customerExist.length > 0) {
+            const max = await Customer.max('customer_id');
 
-            res.status(201).send(addedCustomer)
-            return
+            const customer = {
+                customer_id: max + 1,
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                age: req.body.age,
+                phone_number: req.body.phone_number,
+                monthly_salary: req.body.monthly_salary,
+                approved_limit: 36 * req.body.monthly_salary,
+                current_debt: req.body.current_debt
+            }
+            const response = await Customer.create(customer)
+            if (response) {
+                const addedCustomer = await Customer.findByPk(response.customer_id, {
+                    attributes: {
+                        exclude: ['current_debt', 'createdAt', 'updatedAt'],
+                    }
+                })
+
+                res.status(201).send(addedCustomer)
+                return
+            }
+        } else {
+            const customer = {
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                age: req.body.age,
+                phone_number: req.body.phone_number,
+                monthly_salary: req.body.monthly_salary,
+                approved_limit: 36 * req.body.monthly_salary,
+                current_debt: req.body.current_debt
+            }
+            const response = await Customer.create(customer)
+            if (response) {
+                const addedCustomer = await Customer.findByPk(response.customer_id, {
+                    attributes: {
+                        exclude: ['current_debt', 'createdAt', 'updatedAt'],
+                    }
+                })
+                res.status(201).send(addedCustomer)
+                return
+            }
         }
+
+
     } catch (err) {
+        console.log(err)
         res.status(500).send({
             message: err.message || "some error occurred while creating the user"
         })
